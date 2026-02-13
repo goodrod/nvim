@@ -1,5 +1,12 @@
-{ pkgs, lib, ... }: {
+{
+  pkgs,
+  lib,
+  ...
+}
+: {
   vim = {
+    startPlugins = with pkgs.vimPlugins; [gitsigns-nvim];
+
     luaConfigRC = {
       a-basics = ''
         vim.o.laststatus = 3
@@ -16,8 +23,17 @@
         vim.o.timeoutlen = 400
         vim.o.undofile = true
 
+        vim.api.nvim_create_autocmd({"WinEnter", "BufWinEnter"}, {
+          callback = function()
+            if vim.api.nvim_win_get_config(0).relative == "" then
+              vim.opt_local.scroll = 10
+            end
+          end
+        })
+
         vim.opt.shortmess:append "sI"
         vim.opt.fillchars = { eob = " " }
+        vim.opt.wildmode = "full"
       '';
 
       b-numbers = ''
@@ -45,62 +61,136 @@
       '';
 
       e-mappings = ''
-        -- Replace q / wq / x with MiniBufremove.delete
-        vim.keymap.set("c", "<CR>", function()
-          local cmd = vim.fn.getcmdline()
+        vim.keymap.set("n", "<leader>e", "<CMD>Neotree toggle<CR>", { desc = "Toggle file explorer" })
+        vim.keymap.set("n", "<leader>tt", "<CMD>ToggleTerm<CR>", { desc = "Toggle terminal" })
 
-          if cmd == "q"
-            or cmd == "q!"
-            or cmd == "wq"
-            or cmd == "wq!"
-            or cmd == "x"
-            or cmd == "x!" then
+        vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 
-            if cmd:sub(1,1) == "w" or cmd:sub(1,1) == "x" then
-              return '<C-u>write | lua require("mini.bufremove").delete(0)<CR>'
-            end
+        -- Ctrl-d/u always move cursor 10 lines
+        vim.keymap.set("n", "<C-d>", "10j")
+        vim.keymap.set("n", "<C-u>", "10k")
 
-            return '<C-u>lua require("mini.bufremove").delete(0)<CR>'
-          end
+        -- Buffer management
+        vim.keymap.set("n", "<leader>bd", "<CMD>bdelete<CR>", { desc = "Delete buffer" })
+        vim.keymap.set("n", "<leader>bn", "<CMD>bnext<CR>", { desc = "Next buffer" })
+        vim.keymap.set("n", "<leader>bp", "<CMD>bprevious<CR>", { desc = "Previous buffer" })
+        vim.keymap.set("n", "<leader>bw", "<CMD>w<CR>", { desc = "Save buffer" })
 
-          return "<CR>"
-        end, { expr = true })
+        -- Find/Search
+        vim.keymap.set("n", "<leader>ff", "<CMD>FzfLua files<CR>", { desc = "Find files" })
+        vim.keymap.set("n", "<leader>fg", "<CMD>FzfLua live_grep<CR>", { desc = "Grep in files" })
+        vim.keymap.set("n", "<leader>fb", "<CMD>FzfLua buffers<CR>", { desc = "Find buffers" })
 
-        -- FzfLua keymaps search
+        -- Git
+        vim.keymap.set("n", "<leader>gb", "<CMD>Gitsigns blame_line<CR>", { desc = "Git blame line" })
+        vim.keymap.set("n", "<leader>gt", "<CMD>Gitsigns toggle_current_line_blame<CR>", { desc = "Toggle git blame" })
+        vim.keymap.set("n", "<leader>gh", "<CMD>DiffviewFileHistory %<CR>", { desc = "Git file history" })
+        vim.keymap.set("v", "<leader>gh", ":DiffviewFileHistory<CR>", { desc = "Git selection history" })
+
+        -- LSP
+        vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code action" })
+        vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename symbol" })
+        vim.keymap.set("n", "<leader>ld", vim.lsp.buf.definition, { desc = "Go to definition" })
+        vim.keymap.set("n", "<leader>lr", vim.lsp.buf.references, { desc = "Find references" })
+        vim.keymap.set("n", "<leader>li", vim.lsp.buf.implementation, { desc = "Go to implementation" })
+        vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })
+        vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
+
+        -- Oil file explorer
+        vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent dir in Oil" })
+
+        -- Swedish keyboard homerow navigation
+        vim.keymap.set({"n", "v", "o"}, "j", "h")
+        vim.keymap.set({"n", "v", "o"}, "k", "j")
+        vim.keymap.set({"n", "v", "o"}, "l", "k")
+        vim.keymap.set({"n", "v", "o"}, "ö", "l")
+
+        -- Window navigation
+        vim.keymap.set("n", "<C-w>j", "<C-w>h")
+        vim.keymap.set("n", "<C-w>k", "<C-w>j")
+        vim.keymap.set("n", "<C-w>l", "<C-w>k")
+        vim.keymap.set("n", "<C-w>ö", "<C-w>l")
+
         vim.keymap.set("n", "<leader>k", function()
+          local keymaps = vim.api.nvim_get_keymap('n')
+          local filtered = vim.tbl_filter(function(map)
+            local desc = map.desc or ""
+            return not desc:match("autopairs")
+              and not desc:match("Nvim builtin")
+              and not desc:match("Increment")
+              and not desc:match("Decrement")
+              and not desc:match("^%s*$")
+              and not desc:match("which_key_ignore")
+          end, keymaps)
           require("fzf-lua").keymaps()
         end, { desc = "Search keymaps" })
+      '';
+
+      f-whichkey-groups = ''
+        require("which-key").add({
+          { "<leader>b", group = "Buffer" },
+          { "<leader>c", group = "Code" },
+          { "<leader>d", group = "Debug" },
+          { "<leader>f", group = "Find" },
+          { "<leader>g", group = "Git" },
+          { "<leader>l", group = "LSP" },
+          { "<leader>s", group = "Search" },
+          { "<leader>t", group = "Terminal" },
+          { "<leader>u", group = "UI" },
+          { "<leader>w", group = "Window" },
+          { "<leader>x", group = "Diagnostics" },
+        })
+      '';
+
+      z-gitsigns-nokeys = ''
+        require('gitsigns').setup({
+          current_line_blame = false,
+          on_attach = function(bufnr)
+          end
+        })
       '';
     };
 
     viAlias = true;
     vimAlias = true;
-    debugMode = {
-      enable = false;
-      level = 16;
-      logFile = "/tmp/nvim.log";
-    };
-
-    spellcheck = {
-      enable = true;
-      programmingWordlist.enable = true;
-    };
 
     lsp = {
       enable = true;
-
       formatOnSave = true;
-      lspkind.enable = false;
       lightbulb.enable = true;
-      lspsaga.enable = false;
       trouble.enable = true;
-      otter-nvim.enable = true;
       nvim-docs-view.enable = true;
     };
-    formatter.conform-nvim = {
-      enable = true;
-      setupOpts = { formatters_by_ft = { nix = [ "nixfmt" ]; }; };
+
+    languages = {
+      enableTreesitter = true;
+      enableFormat = true;
+      enableExtraDiagnostics = true;
+      nix.enable = true;
+      markdown.enable = true;
+      bash.enable = true;
+      python.enable = true;
+      rust = {
+        enable = true;
+        extensions.crates-nvim.enable = true;
+      };
+      go.enable = true;
+      lua.enable = true;
+      ts.enable = true;
+      clang.enable = true;
+      csharp = {
+        enable = true;
+        lsp.servers = ["omnisharp"];
+      };
+      css.enable = true;
+      html.enable = true;
+      sql.enable = true;
+      java.enable = true;
+      kotlin.enable = true;
+      zig.enable = true;
+      typst.enable = true;
     };
+
     debugger = {
       nvim-dap = {
         enable = true;
@@ -108,73 +198,55 @@
       };
     };
 
-    # This section does not include a comprehensive list of available language modules.
-    # To list all available language module options, please visit the nvf manual.
-    languages = {
-      enableFormat = true;
-      enableTreesitter = true;
-      enableExtraDiagnostics = true;
-
-      # Languages that will be supported in default and maximal configurations.
-      nix.enable = true;
-      markdown.enable = true;
-
-      # Languages that are enabled in the maximal configuration.
-      bash.enable = true;
-      clang.enable = true;
-      css.enable = true;
-      html.enable = true;
-      sql.enable = true;
-      java.enable = true;
-      kotlin.enable = true;
-      ts.enable = true;
-      go.enable = true;
-      lua.enable = true;
-      zig.enable = true;
-      python.enable = true;
-      typst.enable = true;
-      rust = {
-        enable = true;
-        crates.enable = true;
+    formatter.conform-nvim = {
+      enable = true;
+      setupOpts = {
+        formatters_by_ft = {
+          nix = ["nixfmt"];
+        };
       };
-
-      # Language modules that are not as common.
-      assembly.enable = false;
-      astro.enable = false;
-      nu.enable = false;
-      csharp.enable = false;
-      julia.enable = false;
-      vala.enable = false;
-      scala.enable = false;
-      r.enable = false;
-      gleam.enable = false;
-      dart.enable = false;
-      ocaml.enable = false;
-      elixir.enable = false;
-      haskell.enable = false;
-      ruby.enable = false;
-      fsharp.enable = false;
-
-      tailwind.enable = false;
-      svelte.enable = false;
-
-      # Nim LSP is broken on Darwin and therefore
-      # should be disabled by default. Users may still enable
-      # `vim.languages.vim` to enable it, this does not restrict
-      # that.
-      # See: <https://github.com/PMunch/nimlsp/issues/178#issue-2128106096>
-      nim.enable = false;
     };
 
-    visuals = {
-      nvim-scrollbar.enable = true;
-      nvim-web-devicons.enable = true;
-      nvim-cursorline.enable = true;
-      cinnamon-nvim.enable = true;
-      fidget-nvim.enable = true;
-      highlight-undo.enable = true;
-      indent-blankline.enable = true;
-      cellular-automaton.enable = false;
+    theme = {
+      enable = true;
+      name = "catppuccin";
+      style = "mocha";
+    };
+
+    autocomplete = {
+      blink-cmp = {
+        enable = true;
+        setupOpts = {
+          cmdline = {
+            keymap = {
+              "<C-y>" = ["select_and_accept"];
+            };
+          };
+        };
+      };
+    };
+
+    filetree = {
+      neo-tree = {
+        enable = true;
+        setupOpts = {
+          window = {
+            mappings = {
+              "<space>" = "none";
+              "<Esc>" = "close_window";
+              "<C-c>" = "close_window";
+            };
+          };
+        };
+      };
+    };
+
+    telescope.enable = true;
+
+    fzf-lua.enable = true;
+
+    git = {
+      enable = false;
     };
 
     statusline = {
@@ -184,153 +256,106 @@
       };
     };
 
-    theme = {
-      enable = true;
-      name = "catppuccin";
-      style = "mocha";
-      transparent = false;
-    };
-
-    autopairs.nvim-autopairs.enable = true;
-
-    # nvf provides various autocomplete options. The tried and tested nvim-cmp
-    # is enabled in default package, because it does not trigger a build. We
-    # enable blink-cmp in maximal because it needs to build its rust fuzzy
-    # matcher library.
-    autocomplete = { blink-cmp.enable = true; };
-
-    snippets.luasnip.enable = true;
-
-    filetree = { neo-tree = { enable = true; }; };
-    utility.oil-nvim = {
-      enable = true;
-      setupOpts = {
-        default_file_explorer = false;
-        view_options = { show_hidden = true; };
-        filter = ''
-          function(name, _)
-            if name == "../" or name == ".." then
-              return false
-            end
-            return true
-          end,
-        '';
-      };
-    };
-    tabline = { nvimBufferline.enable = true; };
-
-    treesitter.context.enable = true;
-
     binds = {
       whichKey.enable = true;
       cheatsheet.enable = true;
     };
 
-    telescope.enable = true;
-
-    git = {
-      enable = true;
-      gitsigns.enable = true;
-      gitsigns.codeActions.enable = false; # throws an annoying debug message
-      neogit.enable = true;
-    };
-
-    mini.bufremove.enable = true;
-
-    minimap = {
-      minimap-vim.enable = false;
-      codewindow.enable =
-        true; # lighter, faster, and uses lua for configuration
-    };
-
-    dashboard = {
-      dashboard-nvim.enable = false;
-      alpha.enable = true;
-    };
-
-    notify = { nvim-notify.enable = true; };
-
-    projects = { project-nvim.enable = true; };
-
     utility = {
-      ccc.enable = false;
-      vim-wakatime.enable = false;
-      diffview-nvim.enable = true;
-      yanky-nvim.enable = false;
-      icon-picker.enable = true;
+      diffview-nvim = {
+        enable = true;
+        setupOpts = {
+          keymaps = {
+            view = {
+              q = "<Cmd>DiffviewClose<CR>";
+              "<Esc>" = "<Cmd>DiffviewClose<CR>";
+              "<C-c>" = "<Cmd>DiffviewClose<CR>";
+            };
+            file_panel = {
+              q = "<Cmd>DiffviewClose<CR>";
+              "<Esc>" = "<Cmd>DiffviewClose<CR>";
+              "<C-c>" = "<Cmd>DiffviewClose<CR>";
+            };
+            file_history_panel = {
+              q = "<Cmd>DiffviewClose<CR>";
+              "<Esc>" = "<Cmd>DiffviewClose<CR>";
+              "<C-c>" = "<Cmd>DiffviewClose<CR>";
+            };
+          };
+        };
+      };
       surround.enable = true;
-      leetcode-nvim.enable = true;
-      multicursors.enable = true;
-      smart-splits.enable = true;
       undotree.enable = true;
-      nvim-biscuits.enable = true;
-
+      icon-picker.enable = true;
+      smart-splits.enable = true;
+      oil-nvim = {
+        enable = true;
+        setupOpts = {
+          default_file_explorer = true;
+          view_options = {
+            show_hidden = true;
+          };
+        };
+      };
       motion = {
         hop.enable = true;
         leap.enable = true;
         precognition.enable = true;
       };
       images = {
-        image-nvim.enable = false;
         img-clip.enable = true;
       };
-    };
-
-    notes = {
-      obsidian.enable =
-        false; # FIXME: neovim fails to build if obsidian is enabled
-      neorg.enable = false;
-      orgmode.enable = false;
-      mind-nvim.enable = true;
-      todo-comments.enable = true;
     };
 
     terminal = {
       toggleterm = {
         enable = true;
-        lazygit.enable = true;
+        lazygit.enable = false;
+        setupOpts = {
+          size = 20;
+        };
       };
+    };
+
+    visuals = {
+      nvim-scrollbar.enable = true;
+      nvim-web-devicons.enable = true;
+      nvim-cursorline.enable = true;
+      fidget-nvim.enable = true;
+      highlight-undo.enable = true;
+      indent-blankline.enable = true;
+    };
+
+    autopairs.nvim-autopairs.enable = true;
+    snippets.luasnip.enable = true;
+
+    tabline = {
+      nvimBufferline.enable = true;
+    };
+
+    mini.bufremove.enable = true;
+
+    dashboard = {
+      alpha.enable = true;
+    };
+
+    notify = {
+      nvim-notify.enable = true;
     };
 
     ui = {
       borders.enable = true;
       noice.enable = true;
       colorizer.enable = true;
-      modes-nvim.enable = false; # the theme looks terrible with catppuccin
-      illuminate.enable = true;
-      breadcrumbs = {
-        enable = true;
-        navbuddy.enable = true;
-      };
-      smartcolumn = {
-        enable = true;
-        setupOpts.custom_colorcolumn = {
-          # this is a freeform module, it's `buftype = int;` for configuring column position
-          nix = "110";
-          ruby = "120";
-          java = "130";
-          go = [ "90" "130" ];
-        };
-      };
       fastaction.enable = true;
     };
 
-    assistant = {
-      chatgpt.enable = false;
-      copilot = {
-        enable = false;
-        cmp.enable = true;
-      };
-      codecompanion-nvim.enable = false;
-      avante-nvim.enable = true;
+    projects = {
+      project-nvim.enable = true;
     };
 
-    session = { nvim-session-manager.enable = false; };
-
-    gestures = { gesture-nvim.enable = false; };
-
-    comments = { comment-nvim.enable = true; };
-
-    presence = { neocord.enable = false; };
+    comments = {
+      comment-nvim.enable = true;
+    };
   };
 }
