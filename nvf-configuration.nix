@@ -56,8 +56,6 @@
         vim.opt.scrolloff = 5
         vim.opt.sidescrolloff = 5
         vim.opt.showmode = false
-
-        vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent dir in Oil" })
       '';
 
       e-mappings = ''
@@ -89,10 +87,10 @@
 
         -- LSP
         vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code action" })
-        vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename symbol" })
-        vim.keymap.set("n", "<leader>ld", vim.lsp.buf.definition, { desc = "Go to definition" })
-        vim.keymap.set("n", "<leader>lr", vim.lsp.buf.references, { desc = "Find references" })
-        vim.keymap.set("n", "<leader>li", vim.lsp.buf.implementation, { desc = "Go to implementation" })
+        vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, { desc = "Rename symbol" })
+        vim.keymap.set("n", "<leader>cd", vim.lsp.buf.definition, { desc = "Go to definition" })
+        vim.keymap.set("n", "<leader>cR", vim.lsp.buf.references, { desc = "Find references" })
+        vim.keymap.set("n", "<leader>ci", vim.lsp.buf.implementation, { desc = "Go to implementation" })
         vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })
         vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
 
