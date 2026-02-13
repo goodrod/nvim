@@ -59,7 +59,6 @@
       '';
 
       e-mappings = ''
-        vim.keymap.set("n", "<leader>e", "<CMD>Neotree toggle<CR>", { desc = "Toggle file explorer" })
         vim.keymap.set("n", "<leader>tt", "<CMD>ToggleTerm<CR>", { desc = "Toggle terminal" })
 
         vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
@@ -72,27 +71,35 @@
         vim.keymap.set("n", "<leader>bd", "<CMD>bdelete<CR>", { desc = "Delete buffer" })
         vim.keymap.set("n", "<leader>bn", "<CMD>bnext<CR>", { desc = "Next buffer" })
         vim.keymap.set("n", "<leader>bp", "<CMD>bprevious<CR>", { desc = "Previous buffer" })
-        vim.keymap.set("n", "<leader>bw", "<CMD>w<CR>", { desc = "Save buffer" })
 
         -- Find/Search
+        vim.keymap.set("n", "<leader>fe", "<CMD>Neotree toggle<CR>", { desc = "Toggle file explorer" })
         vim.keymap.set("n", "<leader>ff", "<CMD>FzfLua files<CR>", { desc = "Find files" })
         vim.keymap.set("n", "<leader>fg", "<CMD>FzfLua live_grep<CR>", { desc = "Grep in files" })
         vim.keymap.set("n", "<leader>fb", "<CMD>FzfLua buffers<CR>", { desc = "Find buffers" })
+        vim.keymap.set("n", "<leader>fk", "<CMD>FzfLua keymaps<CR>", { desc = "Find keymaps" })
 
         -- Git
         vim.keymap.set("n", "<leader>gb", "<CMD>Gitsigns blame_line<CR>", { desc = "Git blame line" })
         vim.keymap.set("n", "<leader>gt", "<CMD>Gitsigns toggle_current_line_blame<CR>", { desc = "Toggle git blame" })
         vim.keymap.set("n", "<leader>gh", "<CMD>DiffviewFileHistory %<CR>", { desc = "Git file history" })
         vim.keymap.set("v", "<leader>gh", ":DiffviewFileHistory<CR>", { desc = "Git selection history" })
+        vim.keymap.set("n", "<leader>gd", "<CMD>DiffviewOpen<CR>", { desc = "Git diff" })
 
-        -- LSP
+        -- Code/LSP
         vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code action" })
-        vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, { desc = "Rename symbol" })
+        vim.keymap.set("n", "<leader>car", vim.lsp.buf.rename, { desc = "Rename symbol" })
         vim.keymap.set("n", "<leader>cd", vim.lsp.buf.definition, { desc = "Go to definition" })
-        vim.keymap.set("n", "<leader>cR", vim.lsp.buf.references, { desc = "Find references" })
+        vim.keymap.set("n", "<leader>cr", vim.lsp.buf.references, { desc = "Find references" })
         vim.keymap.set("n", "<leader>ci", vim.lsp.buf.implementation, { desc = "Go to implementation" })
+        vim.keymap.set("n", "<leader>ch", vim.lsp.buf.hover, { desc = "Hover documentation" })
+        vim.keymap.set("n", "<leader>ct", vim.lsp.buf.type_definition, { desc = "Type definition" })
         vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })
         vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
+
+        -- Diagnostics
+        vim.keymap.set("n", "<leader>xx", "<CMD>FzfLua diagnostics_document<CR>", { desc = "Document diagnostics" })
+        vim.keymap.set("n", "<leader>xw", "<CMD>FzfLua diagnostics_workspace<CR>", { desc = "Workspace diagnostics" })
 
         -- Oil file explorer
         vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent dir in Oil" })
@@ -108,20 +115,6 @@
         vim.keymap.set("n", "<C-w>k", "<C-w>j")
         vim.keymap.set("n", "<C-w>l", "<C-w>k")
         vim.keymap.set("n", "<C-w>ö", "<C-w>l")
-
-        vim.keymap.set("n", "<leader>k", function()
-          local keymaps = vim.api.nvim_get_keymap('n')
-          local filtered = vim.tbl_filter(function(map)
-            local desc = map.desc or ""
-            return not desc:match("autopairs")
-              and not desc:match("Nvim builtin")
-              and not desc:match("Increment")
-              and not desc:match("Decrement")
-              and not desc:match("^%s*$")
-              and not desc:match("which_key_ignore")
-          end, keymaps)
-          require("fzf-lua").keymaps()
-        end, { desc = "Search keymaps" })
       '';
 
       f-whichkey-groups = ''
