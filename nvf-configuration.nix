@@ -17,9 +17,6 @@
         vim.o.ignorecase = true
         vim.o.smartcase = true
         vim.o.mouse = "a"
-        vim.o.signcolumn = "yes"
-        vim.o.splitbelow = true
-        vim.o.splitright = true
         vim.o.timeoutlen = 400
         vim.o.undofile = true
 
@@ -33,7 +30,6 @@
 
         vim.opt.shortmess:append "sI"
         vim.opt.fillchars = { eob = " " }
-        vim.opt.wildmode = "full"
       '';
 
       b-numbers = ''
@@ -51,11 +47,8 @@
       '';
 
       d-visuals = ''
-        vim.opt.cursorline = true
-        vim.opt.termguicolors = true
         vim.opt.scrolloff = 5
         vim.opt.sidescrolloff = 5
-        vim.opt.showmode = false
       '';
 
       e-mappings = ''
@@ -94,8 +87,6 @@
         vim.keymap.set("n", "<leader>ci", vim.lsp.buf.implementation, { desc = "Go to implementation" })
         vim.keymap.set("n", "<leader>ch", vim.lsp.buf.hover, { desc = "Hover documentation" })
         vim.keymap.set("n", "<leader>ct", vim.lsp.buf.type_definition, { desc = "Type definition" })
-        vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })
-        vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
 
         -- Diagnostics
         vim.keymap.set("n", "<leader>xx", "<CMD>FzfLua diagnostics_document<CR>", { desc = "Document diagnostics" })
@@ -111,10 +102,16 @@
         vim.keymap.set({"n", "v", "o"}, "ö", "l")
 
         -- Window navigation
-        vim.keymap.set("n", "<C-w>j", "<C-w>h")
-        vim.keymap.set("n", "<C-w>k", "<C-w>j")
-        vim.keymap.set("n", "<C-w>l", "<C-w>k")
-        vim.keymap.set("n", "<C-w>ö", "<C-w>l")
+        vim.keymap.set("n", "<C-j>", "<C-w>h")
+        vim.keymap.set("n", "<C-k>", "<C-w>j")
+        vim.keymap.set("n", "<C-l>", "<C-w>k")
+        vim.keymap.set("n", "<C-ö>", "<C-w>l")
+
+        -- Window resize
+        vim.keymap.set("n", "<C-S-j>", "<C-w><")
+        vim.keymap.set("n", "<C-S-ö>", "<C-w>>")
+        vim.keymap.set("n", "<C-S-k>", "<C-w>-")
+        vim.keymap.set("n", "<C-S-l>", "<C-w>+")
       '';
 
       f-whichkey-groups = ''
