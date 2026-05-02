@@ -52,48 +52,71 @@
       '';
 
       e-mappings = ''
-        vim.keymap.set("n", "<leader>tt", "<CMD>ToggleTerm<CR>", { desc = "Toggle terminal" })
-
         vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 
         -- Ctrl-d/u always move cursor 10 lines
         vim.keymap.set("n", "<C-d>", "10j")
         vim.keymap.set("n", "<C-u>", "10k")
 
-        -- Buffer management
-        vim.keymap.set("n", "<leader>bd", "<CMD>bdelete<CR>", { desc = "Delete buffer" })
-        vim.keymap.set("n", "<leader>bn", "<CMD>bnext<CR>", { desc = "Next buffer" })
-        vim.keymap.set("n", "<leader>bp", "<CMD>bprevious<CR>", { desc = "Previous buffer" })
+        -- Terminal
+        vim.keymap.set("n", "<leader>t", "<CMD>ToggleTerm<CR>", { desc = "Toggle terminal" })
 
         -- Find/Search
-        vim.keymap.set("n", "<leader>fe", "<CMD>Neotree toggle<CR>", { desc = "Toggle file explorer" })
         vim.keymap.set("n", "<leader>ff", "<CMD>FzfLua files<CR>", { desc = "Find files" })
         vim.keymap.set("n", "<leader>fg", "<CMD>FzfLua live_grep<CR>", { desc = "Grep in files" })
         vim.keymap.set("n", "<leader>fb", "<CMD>FzfLua buffers<CR>", { desc = "Find buffers" })
         vim.keymap.set("n", "<leader>fk", "<CMD>FzfLua keymaps<CR>", { desc = "Find keymaps" })
 
-        -- Git
-        vim.keymap.set("n", "<leader>gb", "<CMD>Gitsigns blame_line<CR>", { desc = "Git blame line" })
-        vim.keymap.set("n", "<leader>gt", "<CMD>Gitsigns toggle_current_line_blame<CR>", { desc = "Toggle git blame" })
-        vim.keymap.set("n", "<leader>gh", "<CMD>DiffviewFileHistory %<CR>", { desc = "Git file history" })
-        vim.keymap.set("v", "<leader>gh", ":DiffviewFileHistory<CR>", { desc = "Git selection history" })
-        vim.keymap.set("n", "<leader>gd", "<CMD>DiffviewOpen<CR>", { desc = "Git diff" })
+        -- Explorer
+        vim.keymap.set("n", "<leader>e", "<CMD>Neotree toggle<CR>", { desc = "Toggle file explorer" })
 
-        -- Code/LSP
+        -- Undotree
+        vim.keymap.set("n", "<leader>u", "<CMD>UndotreeToggle<CR>", { desc = "Undotree" })
+
+        -- Git
+        vim.keymap.set("n", "<leader>gb", "<CMD>Gitsigns blame_line<CR>", { desc = "Blame line" })
+        vim.keymap.set("n", "<leader>gt", "<CMD>Gitsigns toggle_current_line_blame<CR>", { desc = "Toggle blame" })
+        vim.keymap.set("n", "<leader>gh", "<CMD>DiffviewFileHistory %<CR>", { desc = "File history" })
+        vim.keymap.set("v", "<leader>gh", ":DiffviewFileHistory<CR>", { desc = "Selection history" })
+        vim.keymap.set("n", "<leader>gd", "<CMD>DiffviewOpen<CR>", { desc = "Diff view" })
+        vim.keymap.set("n", "<leader>gs", "<CMD>Gitsigns stage_hunk<CR>", { desc = "Stage hunk" })
+        vim.keymap.set("n", "<leader>gu", "<CMD>Gitsigns undo_stage_hunk<CR>", { desc = "Undo stage hunk" })
+
+        -- Hunk navigation
+        vim.keymap.set("n", "]c", "<CMD>Gitsigns next_hunk<CR>", { desc = "Next hunk" })
+        vim.keymap.set("n", "[c", "<CMD>Gitsigns prev_hunk<CR>", { desc = "Prev hunk" })
+
+        -- Code/LSP (actions only)
         vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code action" })
-        vim.keymap.set("n", "<leader>car", vim.lsp.buf.rename, { desc = "Rename symbol" })
-        vim.keymap.set("n", "<leader>cd", vim.lsp.buf.definition, { desc = "Go to definition" })
-        vim.keymap.set("n", "<leader>cr", vim.lsp.buf.references, { desc = "Find references" })
-        vim.keymap.set("n", "<leader>ci", vim.lsp.buf.implementation, { desc = "Go to implementation" })
-        vim.keymap.set("n", "<leader>ch", vim.lsp.buf.hover, { desc = "Hover documentation" })
-        vim.keymap.set("n", "<leader>ct", vim.lsp.buf.type_definition, { desc = "Type definition" })
+        vim.keymap.set("n", "<leader>cn", vim.lsp.buf.rename, { desc = "Rename symbol" })
+
+        -- LSP navigation (direct)
+        vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
+        vim.keymap.set("n", "gr", vim.lsp.buf.references, { desc = "Find references" })
+        vim.keymap.set("n", "gi", vim.lsp.buf.implementation, { desc = "Go to implementation" })
+        vim.keymap.set("n", "gy", vim.lsp.buf.type_definition, { desc = "Type definition" })
+        vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "Hover documentation" })
 
         -- Diagnostics
-        vim.keymap.set("n", "<leader>xx", "<CMD>FzfLua diagnostics_document<CR>", { desc = "Document diagnostics" })
+        vim.keymap.set("n", "<leader>xx", "<CMD>Trouble toggle<CR>", { desc = "Trouble toggle" })
+        vim.keymap.set("n", "<leader>xd", "<CMD>FzfLua diagnostics_document<CR>", { desc = "Document diagnostics" })
         vim.keymap.set("n", "<leader>xw", "<CMD>FzfLua diagnostics_workspace<CR>", { desc = "Workspace diagnostics" })
+        vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
+        vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Prev diagnostic" })
+
+        -- Debug
+        vim.keymap.set("n", "<leader>db", "<CMD>DapToggleBreakpoint<CR>", { desc = "Toggle breakpoint" })
+        vim.keymap.set("n", "<leader>dc", "<CMD>DapContinue<CR>", { desc = "Continue" })
+        vim.keymap.set("n", "<leader>ds", "<CMD>DapStepOver<CR>", { desc = "Step over" })
+        vim.keymap.set("n", "<leader>di", "<CMD>DapStepInto<CR>", { desc = "Step into" })
+        vim.keymap.set("n", "<leader>du", function() require("dapui").toggle() end, { desc = "Toggle DAP UI" })
 
         -- Oil file explorer
         vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent dir in Oil" })
+
+        -- Leap motion
+        vim.keymap.set({"n", "x", "o"}, "s", "<Plug>(leap-forward)", { desc = "Leap forward" })
+        vim.keymap.set({"n", "x", "o"}, "S", "<Plug>(leap-backward)", { desc = "Leap backward" })
 
         -- Swedish keyboard homerow navigation
         vim.keymap.set({"n", "v", "o"}, "j", "h")
@@ -101,11 +124,20 @@
         vim.keymap.set({"n", "v", "o"}, "l", "k")
         vim.keymap.set({"n", "v", "o"}, "ö", "l")
 
-        -- Window navigation
+        -- Window navigation (homerow + arrows)
         vim.keymap.set("n", "<C-j>", "<C-w>h")
         vim.keymap.set("n", "<C-k>", "<C-w>j")
         vim.keymap.set("n", "<C-l>", "<C-w>k")
         vim.keymap.set("n", "<C-ö>", "<C-w>l")
+        vim.keymap.set("n", "<C-Left>", "<C-w>h")
+        vim.keymap.set("n", "<C-Down>", "<C-w>j")
+        vim.keymap.set("n", "<C-Up>", "<C-w>k")
+        vim.keymap.set("n", "<C-Right>", "<C-w>l")
+
+        -- Window splits & close
+        vim.keymap.set("n", "<C-w>v", "<CMD>vsplit<CR>", { desc = "Vertical split" })
+        vim.keymap.set("n", "<C-w>s", "<CMD>split<CR>", { desc = "Horizontal split" })
+        vim.keymap.set("n", "<C-w>q", "<CMD>close<CR>", { desc = "Close window" })
 
         -- Window resize
         vim.keymap.set("n", "<C-S-j>", "<C-w><")
@@ -116,16 +148,10 @@
 
       f-whichkey-groups = ''
         require("which-key").add({
-          { "<leader>b", group = "Buffer" },
           { "<leader>c", group = "Code" },
           { "<leader>d", group = "Debug" },
           { "<leader>f", group = "Find" },
           { "<leader>g", group = "Git" },
-          { "<leader>l", group = "LSP" },
-          { "<leader>s", group = "Search" },
-          { "<leader>t", group = "Terminal" },
-          { "<leader>u", group = "UI" },
-          { "<leader>w", group = "Window" },
           { "<leader>x", group = "Diagnostics" },
         })
       '';
