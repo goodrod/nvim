@@ -10,6 +10,10 @@ in {
 
     luaConfigRC = {
       a-basics = ''
+        -- Polyfill: shadow deprecated vim.tbl_flatten so plugins (lualine etc.)
+        -- that still call it don't emit warnings on nvim 0.11+.
+        vim.tbl_flatten = function(t) return vim.iter(t):flatten(math.huge):totable() end
+
         vim.o.laststatus = 3
         vim.o.showmode = false
         vim.o.clipboard = "unnamedplus"
@@ -88,7 +92,7 @@ in {
         vim.keymap.set("n", "[c", "<CMD>Gitsigns prev_hunk<CR>", { desc = "Prev hunk" })
 
         -- Code/LSP (actions only)
-        vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code action" })
+        vim.keymap.set({"n", "v"}, "<leader>ca", vim.lsp.buf.code_action, { desc = "Code action" })
         vim.keymap.set("n", "<leader>cn", vim.lsp.buf.rename, { desc = "Rename symbol" })
 
         -- LSP navigation (direct)
@@ -223,7 +227,7 @@ in {
       };
       go.enable = true;
       lua.enable = true;
-      ts.enable = true;
+      typescript.enable = true;
       clang.enable = true;
       csharp = {
         enable = true;
@@ -285,6 +289,7 @@ in {
               "<space>" = "none";
               "<Esc>" = "close_window";
               "<C-c>" = "close_window";
+              "<LeftRelease>" = "open";
             };
           };
         };
@@ -302,7 +307,7 @@ in {
     statusline = {
       lualine = {
         enable = true;
-        theme = "catppuccin";
+        theme = "auto";
       };
     };
 
