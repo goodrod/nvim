@@ -2,8 +2,9 @@
   pkgs,
   lib,
   ...
-}
-: {
+}: let
+  kotlin-lsp = pkgs.callPackage ./kotlin-lsp.nix { };
+in {
   vim = {
     startPlugins = with pkgs.vimPlugins; [gitsigns-nvim];
 
@@ -156,6 +157,38 @@
         })
       '';
 
+      y-kotlin-lsp = ''
+        vim.lsp.config('kotlin_lsp', {
+          cmd = { '${kotlin-lsp}/bin/kotlin-lsp', '--stdio' },
+          filetypes = { 'kotlin' },
+          root_markers = { 'settings.gradle.kts', 'build.gradle.kts', 'pom.xml', '.git' },
+        })
+        vim.lsp.enable('kotlin_lsp')
+
+        vim.api.nvim_create_autocmd('BufReadCmd', {
+          pattern = 'jar://*',
+          callback = function(args)
+            local jar, inner = vim.api.nvim_buf_get_name(args.buf):match("^jar:/*(/.-)!/(.+)$")
+            if not jar then return end
+            local out = vim.system({ "${pkgs.unzip}/bin/unzip", "-p", jar, inner }, { text = true }):wait().stdout or ""
+            local lines = vim.split(out, "\n", { plain = true })
+            if lines[#lines] == "" then lines[#lines] = nil end
+            vim.bo[args.buf].modifiable = true
+            vim.api.nvim_buf_set_lines(args.buf, 0, -1, false, lines)
+            vim.bo[args.buf].modifiable = false
+            vim.bo[args.buf].modified = false
+            local ft = vim.filetype.match({ filename = inner, buf = args.buf })
+            if ft then vim.bo[args.buf].filetype = ft end
+            if ft == 'kotlin' then
+              vim.schedule(function()
+                local c = vim.lsp.get_clients({ name = 'kotlin_lsp' })[1]
+                if c then vim.lsp.buf_attach_client(args.buf, c.id) end
+              end)
+            end
+          end,
+        })
+      '';
+
       z-gitsigns-nokeys = ''
         require('gitsigns').setup({
           current_line_blame = false,
@@ -200,7 +233,10 @@
       html.enable = true;
       sql.enable = true;
       java.enable = true;
-      kotlin.enable = true;
+      kotlin = {
+        enable = true;
+        lsp.enable = false;
+      };
       zig.enable = true;
       typst.enable = true;
     };
