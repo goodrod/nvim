@@ -165,7 +165,7 @@ in {
         vim.lsp.config('kotlin_lsp', {
           cmd = { '${kotlin-lsp}/bin/kotlin-lsp', '--stdio' },
           filetypes = { 'kotlin' },
-          root_markers = { 'settings.gradle.kts', 'build.gradle.kts', 'pom.xml', '.git' },
+          root_markers = { '.git' },
         })
         vim.lsp.enable('kotlin_lsp')
 
