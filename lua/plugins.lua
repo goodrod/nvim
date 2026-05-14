@@ -255,6 +255,12 @@ end)
 safe("dapui", function(m) m.setup() end)
 safe("nvim-dap-virtual-text", function(m) m.setup() end)
 safe("dap", function(dap)
+  vim.fn.sign_define("DapBreakpoint",          { text = "●", texthl = "DiagnosticError", linehl = "", numhl = "" })
+  vim.fn.sign_define("DapBreakpointCondition", { text = "●", texthl = "DiagnosticWarn",  linehl = "", numhl = "" })
+  vim.fn.sign_define("DapBreakpointRejected",  { text = "○", texthl = "DiagnosticError", linehl = "", numhl = "" })
+  vim.fn.sign_define("DapLogPoint",            { text = "◆", texthl = "DiagnosticInfo",  linehl = "", numhl = "" })
+  vim.fn.sign_define("DapStopped",             { text = "▶", texthl = "DiagnosticWarn",  linehl = "Visual", numhl = "" })
+
   local ok, dapui = pcall(require, "dapui")
   if ok then
     dap.listeners.before.attach.dapui_config = function() dapui.open() end

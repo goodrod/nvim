@@ -1,8 +1,8 @@
 vim.api.nvim_create_autocmd({ "WinEnter", "BufWinEnter" }, {
   callback = function()
-    if vim.api.nvim_win_get_config(0).relative == "" then
-      vim.opt_local.scroll = 10
-    end
+    if vim.api.nvim_win_get_config(0).relative ~= "" then return end
+    local h = vim.api.nvim_win_get_height(0)
+    if h >= 4 then vim.opt_local.scroll = math.min(10, math.max(1, math.floor(h / 2))) end
   end,
 })
 
